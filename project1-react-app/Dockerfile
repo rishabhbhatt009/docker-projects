@@ -8,6 +8,9 @@ USER app
 # setting working dir
 WORKDIR /app
 
+# adding path for volume
+RUN mkdir data
+
 # copying dependency files to workdir
 COPY package*.json .
 
