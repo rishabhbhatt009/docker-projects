@@ -1,8 +1,12 @@
 # setting up base image
 FROM node:16.20.1-alpine3.18
 
+# adding and setting user 
+RUN addgroup app && adduser -S -G app app
+USER app 
+
 # setting working dir
-WORKDIR /the/workdir/path
+WORKDIR /app
 
 # copying dependency files to workdir
 COPY package*.json .
@@ -14,14 +18,10 @@ RUN npm install
 COPY . .
 
 # setting env-var
-ENV app_name = "TEST_APP"
+ENV APP_NAME = "TEST_APP"
 
 # exposing port (only of doc)
 EXPOSE 3000
 
-# adding and setting user 
-RUN addgroup app && add user -S -G app app
-USER app 
-
 # default instruction
-CMD npm start
+CMD ["npm", "start"]
