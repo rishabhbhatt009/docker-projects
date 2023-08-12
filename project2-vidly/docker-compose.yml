@@ -1,29 +1,87 @@
-version: "3.8"
+version: '3.8'
 
+# defining services 
 services:
+
+  ###################################################################
+  # service 1 : frontend 
+  ###################################################################
   frontend:
-    depends_on: 
-      - backend
+    # we build the image from dockerfile inside dir
     build: ./frontend
+
+    # define ports 
     ports:
       - 3000:3000
 
-  backend: 
-    depends_on: 
-      - db
+    # define volumes for code sync 
+    # volumes:
+    #   - ./frontend:/app
+
+  # adding test service 
+  frontend-test:
+    # we build from the previous image 
+    image: project2-vidly-frontend
+    
+    # we do not need to sync code
+    # volumes:
+    #   - ./frontend:/app
+
+    command: npm test
+
+  ###################################################################
+  # service 2 : backend 
+  ###################################################################
+  backend:
+    # we build the image from dockerfile inside dir
     build: ./backend
-    ports: 
+
+    # define ports 
+    ports:
       - 3001:3001
-    environment: 
-      DB_URL: mongodb://db/vidly
+
+    # define environment vars
+    environment:
+      # - DB_URL=mongodb://database/vidly
+      DB_URL: mongodb://database/vidly
+
+    # define volumes for code  
+    # volumes:
+    #   - ./backend:/app
+
+    # overriding command 
+    # command is to long and can be replaced by a entrypoint script 
+    # command: ./wait-for database:27017 && migrate-mongodb up && npm start
     command: ./docker-entrypoint.sh
 
-  db:
+  # adding test service 
+  backend-test:
+    image: project2-vidly-backend
+    environment:
+      DB_URL: mongodb://database/vidly
+    # define volumes for code (do not need)
+    # volumes:
+    #   - ./backend:/app
+    command: npm test
+
+  ###################################################################
+  # service 3 : database 
+  ###################################################################
+  database:
+
+    # we build the image 
     image: mongo:4.0-xenial
+
+    # define ports 
     ports:
       - 27017:27017
+
+    # define volume for service 
     volumes:
       - vidly:/data/db
 
+  ###################################################################
+
+# defining volume globally
 volumes:
   vidly:
